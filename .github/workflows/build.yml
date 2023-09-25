@@ -30,14 +30,14 @@ jobs: {
             },
             {
                 "name": "Figure out the /opt/python directory from the tar file",
-                "run": "tar -xf release-${{ matrix.version }}-${{ matrix.architecture }}.tar -C /tmp && cd /tmp && tar -xf $(ls -S *.tar | head -n 1) && zip -r -9 release-${{ matrix.version }}-${{ matrix.architecture }}.zip opt/python",
+                "run": "mkdir -p build && tar -xf release-${{ matrix.version }}-${{ matrix.architecture }}.tar -C ./build && cd ./build && tar -xf $(ls -S *.tar | head -n 1) && zip -r -9 release-${{ matrix.version }}-${{ matrix.architecture }}.zip opt/python",
             },
             {
                 "name": "Release the tar file to release page",
                 "uses": "actions/upload-artifact@v3",
                 "with": {
                     "name": "release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
-                    "path": "release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
+                    "path": "build/release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
                 },
             },
         ],
