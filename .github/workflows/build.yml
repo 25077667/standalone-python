@@ -22,22 +22,22 @@ jobs: {
             },
             {
                 "name": "Build docker image",
-                "run": "docker build -t release-${{ github.ref_name }}:${{ matrix.architecture }}.${{ matrix.version }} ./${{ matrix.version }}/${{ matrix.architecture }}/",
+                "run": "docker build -t release-${{ github.ref_name }}:${{ matrix.version }}-${{ matrix.architecture }} ./${{ matrix.version }}/${{ matrix.architecture }}/",
             },
             {
                 "name": "Save docker image as tar file",
-                "run": "docker save release-${{ github.ref_name }}:${{ matrix.architecture }}.${{ matrix.version }} > release-${{ matrix.architecture }}.${{ matrix.version }}.tar",
+                "run": "docker save release-${{ github.ref_name }}:${{ matrix.version }}-${{ matrix.architecture }} > release-${{ matrix.version }}-${{ matrix.architecture }}.tar",
             },
             {
                 "name": "Figure out the /opt/python directory from the tar file",
-                "run": "tar -xf release-${{ matrix.architecture }}.${{ matrix.version }}.tar -C /tmp && cd /tmp && tar -xf $(ls -S | head -n 1) && zip -r -9 release-${{ matrix.architecture }}.${{ matrix.version }}.zip opt/python",
+                "run": "tar -xf release-${{ matrix.version }}-${{ matrix.architecture }}.tar -C /tmp && cd /tmp && tar -xf $(ls -S *.tar | head -n 1) && zip -r -9 release-${{ matrix.version }}-${{ matrix.architecture }}.zip opt/python",
             },
             {
                 "name": "Release the tar file to release page",
                 "uses": "actions/upload-artifact@v3",
                 "with": {
-                    "name": "release-${{ matrix.architecture }}.${{ matrix.version }}.zip",
-                    "path": "release-${{ matrix.architecture }}.${{ matrix.version }}.zip",
+                    "name": "release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
+                    "path": "release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
                 },
             },
         ],
