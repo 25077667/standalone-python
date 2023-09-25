@@ -36,8 +36,8 @@ jobs: {
                 "name": "Release the tar file to release page",
                 "uses": "actions/upload-artifact@v3",
                 "with": {
-                    "name": "release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
-                    "path": "build/release-${{ matrix.version }}-${{ matrix.architecture }}.zip",
+                    "name": "release-${{ matrix.version }}-${{ matrix.architecture }}.tar",
+                    "path": "build/release-${{ matrix.version }}-${{ matrix.architecture }}.tar",
                 },
             },
         ],
