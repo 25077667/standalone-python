@@ -27,9 +27,3 @@ make -j $(nproc)
 rm python
 make -j $(nproc) python
 make install
-
-# find /usr/local -type f -executable -not \( -name '*tkinter*' \) -exec scanelf --needed --nobanner --format '%n#p' '{}' ';' | tr ',' '\n' | sort -u | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' | xargs -rt apk add --no-network --virtual .python-rundeps
-# apk del --no-network .build-deps
-export PYTHON_PATH=/opt/python/bin/python3
-
-$PYTHON_PATH --version # buildkit

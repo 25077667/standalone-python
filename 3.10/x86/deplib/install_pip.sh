@@ -8,6 +8,7 @@ export PYTHON_PATH=/opt/python/bin/python3
 wget -O get-pip.py "$PYTHON_GET_PIP_URL"
 export PYTHONDONTWRITEBYTECODE=1
 
+export LD_LIBRARY_PATH="/opt/python/lib:$LD_LIBRARY_PATH"
 $PYTHON_PATH get-pip.py --disable-pip-version-check --no-cache-dir --no-compile "pip==$PYTHON_PIP_VERSION" "setuptools==$PYTHON_SETUPTOOLS_VERSION"
 rm -f get-pip.py
 export PIP_PATH=/opt/python/bin/pip3
