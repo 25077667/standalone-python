@@ -30,7 +30,7 @@ jobs: {
             },
             {
                 "name": "Figure out the /opt/python directory from the tar file",
-                "run": "mkdir -p build && tar -xf release-${{ matrix.version }}-${{ matrix.architecture }}.tar -C ./build && cd ./build && tar -xf $(ls -S *.tar | head -n 1) && zip -r -9 release-${{ matrix.version }}-${{ matrix.architecture }}.zip opt/python",
+                "run": "./ci/packing_release_tar.sh release-${{ matrix.version }}-${{ matrix.architecture }}.tar",
             },
             {
                 "name": "Release the tar file to release page",
