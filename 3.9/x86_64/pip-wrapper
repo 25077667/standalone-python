@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+export cur_path=$(pwd)
+
+# Suppose the real python is already renamed as "*-real"
+
+# We expect this script is next to the python file
+export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+export INSTALL_PREFIX=$SCRIPT_DIR/../
+
+# Find the REAL_PIP
+export REAL_PYTHON=$(find $INSTALL_PREFIX/bin -type f -executable -name 'python*-real' | head -n 1)
+export REAL_PIP=$(find $INSTALL_PREFIX/bin -type f -executable -name 'pip*-real' | head -n 1)
+
+# invoke the real python and pass all the arguments
+cd $SCRIPT_DIR
+$REAL_PYTHON $REAL_PIP "$@"
+cd $cur_path
