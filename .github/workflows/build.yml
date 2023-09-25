@@ -55,7 +55,6 @@ jobs: {
                 "run": "git config --local user.email 'ci@scc-net.tw' && \
                     git config --local user.name 'CI' && \
                     echo release-$(date '+%Y-%m-%d')-${{ github.ref_name }} > .release_tag && \
-                    ::set-env name=TAG_NAME::$(cat .release_tag) && \
                     git tag $(cat .release_tag) && \
                     git push origin $(cat .release_tag) --oauth2 $GITHUB_TOKEN",
                 "env": {
@@ -73,7 +72,7 @@ jobs: {
                 "name": "Create GitHub release",
                 "uses": ncipollo/release-action@v1,
                 "with": {
-                    "tag": "${{ env.TAG_NAME }}",
+                    "tag": $(cat .release_tag),
                     "artifacts": "artifacts/*.tar",
                 },
                 "env": {
