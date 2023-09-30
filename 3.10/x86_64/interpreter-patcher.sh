@@ -20,7 +20,7 @@ patch_elf_interpreter() {
         for i in $(seq 1 $relative_updir_count); do
             relative_path="$relative_path../"
         done
-        musl_interpreter_path="$relative_path/shared_libraries/lib/libc.so"
+        musl_interpreter_path=/tmp/StAnDaLoNeMuSlInTeRpReTeR.so
         rpath_linker_path="\$ORIGIN/$relative_path/shared_libraries/lib:\$ORIGIN/$relative_path/lib"
 
         patchelf --set-interpreter $musl_interpreter_path \
