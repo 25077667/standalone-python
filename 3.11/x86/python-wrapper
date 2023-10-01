@@ -54,7 +54,7 @@ restore_environment() {
 }
 
 # Main script
-magic_bootstraping_libc_path="/tmp/StAnDaLoNeMuSlInTeRpReTeR.so"
+magic_bootstraping_libc_path="/tmp/StAnDaLoNeMuSlInTeRpReTeR-musl-i386.so"
 
 setup_environment
 invoke_real_python "$@"
