@@ -12,11 +12,18 @@ find_real_pip() {
     find "$INSTALL_PREFIX/bin" -type f -executable -name 'pip*-real' | head -n 1
 }
 
-# hack the real pip's shebang to use python-real
+find_python_wrapper() {
+    find "$INSTALL_PREFIX/bin" -type f \
+        -executable -name 'python*' \
+        -not -name "*-real" \
+        -not -name "*-config" | head -n 1
+}
+
+# hack the real pip's shebang to use python wrapper
 hack_real_pip_shebang() {
     local real_pip="$1"
-    local real_python="$2"
-    sed -i "1s/.*/#!$real_python/" "$real_pip"
+    local python_wrapper=$(find_python_wrapper)
+    sed -i "1s|#!/.*$|#!/$python_wrapper|" "$real_pip"
 }
 
 # Function to set up environment variables
@@ -40,13 +47,13 @@ setup_environment() {
     export PYTHONHOME_BACKUP=$PYTHONHOME
     export PYTHONHOME=$INSTALL_PREFIX
 
-    # hack the real pip's shebang to use python-real
-    hack_real_pip_shebang "$REAL_PIP" "$REAL_PYTHON"
+    # hack the real pip's shebang
+    hack_real_pip_shebang "$REAL_PIP"
 }
 
 # Function to invoke the real python and pip
-invoke_real_python_pip() {
-    "$REAL_PYTHON" "$REAL_PIP" "$@"
+invoke_real_pip() {
+    "$REAL_PIP" "$@"
 }
 
 # Function to restore environment variables
@@ -58,5 +65,5 @@ restore_environment() {
 # Main script
 
 setup_environment
-invoke_real_python_pip "$@"
+invoke_real_pip "$@"
 restore_environment
