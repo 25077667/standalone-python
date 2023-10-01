@@ -46,7 +46,6 @@ setup_environment() {
 
 # Function to invoke the real python and pip
 invoke_real_python_pip() {
-    cd "$SCRIPT_DIR"
     "$REAL_PYTHON" "$REAL_PIP" "$@"
 }
 
@@ -54,11 +53,9 @@ invoke_real_python_pip() {
 restore_environment() {
     export PYTHONHOME=$PYTHONHOME_BACKUP
     export PYTHONPATH=$PYTHONPATH_BACKUP
-    cd "$cur_path"
 }
 
 # Main script
-cur_path=$(pwd)
 
 setup_environment
 invoke_real_python_pip "$@"

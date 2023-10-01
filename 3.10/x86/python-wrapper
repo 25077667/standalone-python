@@ -43,8 +43,7 @@ setup_environment() {
 }
 
 # Function to invoke the real python
-invoke_real_python() {
-    cd "$SCRIPT_DIR"    
+invoke_real_python() {    
     "$REAL_PYTHON" "$@"
 }
 
@@ -52,11 +51,9 @@ invoke_real_python() {
 restore_environment() {
     export PYTHONHOME=$PYTHONHOME_BACKUP
     export PYTHONPATH=$PYTHONPATH_BACKUP
-    cd "$cur_path"
 }
 
 # Main script
-cur_path=$(pwd)
 magic_bootstraping_libc_path="/tmp/StAnDaLoNeMuSlInTeRpReTeR.so"
 
 setup_environment
