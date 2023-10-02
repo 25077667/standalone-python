@@ -38,9 +38,9 @@ standalone Python is designed to work seamlessly across all Linux platforms.
 - bash
 
 # License
-GPLv3
+Any codes were downloaded from links, follow the license of the original project.
 
-Because almost all the source code for this project is licensed under the GPLv3, gcc, ncurses, readline, and zlib, etc. are all licensed under the GPLv3.
+Others are under [MIT License](/LICENSE).
 
 Get started with Standalone Python today and ensure Python compatibility in any
 environment! 🚀
