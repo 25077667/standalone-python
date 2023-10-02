@@ -70,12 +70,15 @@ jobs: {
             },
             {   "name": "Set env TAG_NAME",
                 "run": "echo ::set-env name=TAG_NAME::$(cat .release_tag)",
+                "env": {
+                    "ACTIONS_ALLOW_UNSECURE_COMMANDS": "true",
+                },        
             },
             {
                 "name": "Create GitHub release",
                 "uses": ncipollo/release-action@v1,
                 "with": {
-                    "tag": $(cat .release_tag),
+                    "tag": "${{ env.TAG_NAME }}",
                     "artifacts": "artifacts/*.tar",
                 },
                 "env": {
