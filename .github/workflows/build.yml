@@ -54,7 +54,7 @@ jobs: {
                 "name": "Create release tag",
                 "run": "git config --local user.email 'ci@scc-net.tw' && \
                     git config --local user.name 'CI' && \
-                    echo release-$(date '+%Y-%m-%d')-${{ github.ref_name }} > .release_tag && \
+                    echo release-$(date '+%Y-%m-%d') > .release_tag && \
                     git tag $(cat .release_tag) && \
                     git push origin --tags",
                 "env": {
@@ -67,6 +67,9 @@ jobs: {
                 "with": {
                     "path": "artifacts/",
                 },
+            },
+            {   "name": "Set env TAG_NAME",
+                "run": "echo ::set-env name=TAG_NAME::$(cat .release_tag)",
             },
             {
                 "name": "Create GitHub release",
