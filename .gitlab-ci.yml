@@ -27,6 +27,10 @@ build:
       - version: ["3.12", "3.11", "3.10"]
         architecture: ["x86_64", "x86"]
   tags: [shell]
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never 
+    - when: always
 
 generate_release_tag:
   stage: generate_release_tag
@@ -50,13 +54,13 @@ upload:
       curl \
       --header "JOB-TOKEN: $CI_JOB_TOKEN" \
       --upload-file build/release-${version}-${architecture}.tar.gz \
-      "${PACKAGE_REGISTRY_URL}${PACKAGE_NAME}/${PACKAGE_VERSION}/release-${version}-${architecture}.tar.gz?${GET_FILE_ATTR_MAGIC}" >> result.txt
+      "${PACKAGE_REGISTRY_URL}${PACKAGE_NAME}/${PACKAGE_VERSION}/release-${version}-${architecture}.tar.gz?${GET_FILE_ATTR_MAGIC}" >> ${version}-${architecture}-result.txt
   parallel:
     matrix:
       - version: ["3.12", "3.11", "3.10"]
         architecture: ["x86_64", "x86"]
   artifacts:
-    paths: ["result.txt"]
+    paths: ["*-result.txt"]
   tags: [shell]
 
 release:
@@ -67,14 +71,24 @@ release:
       artifacts: true
     - job: generate_release_tag
       artifacts: true
+  before_script:
+    - apt-get update -y && apt-get install jq -y
   script:
   - |
     export TAG_NAME="$(cat .release_tag)"
     echo "TAG_NAME=${TAG_NAME}"
-    cat result.txt
+    cat *-result.txt
+    for res in $(ls *-result.txt); do
+      url=$(cat $res | jq -r '.file.url')
+      echo "url=${url}"
+      filename=$(echo "$url" | sed "s/.*(release-.*\.tar\.gz)/\1/")
+      file_id=$(echo "$url" | sed -n 's/.*\/files\/\([0-9]\+\)\/.*/\1/p');
+      echo "- [🐍 $filename](/../../package_files/${file_id}/download)" >> generated_release_notes.txt
+    done
+    echo >> generated_release_notes.txt
   - |
     release-cli create --name "${PACKAGE_NAME}" \
     --ref "${CI_COMMIT_REF_NAME}" \
     --tag-name "${TAG_NAME}" \
-    --description result.txt
+    --description generated_release_notes.txt
 
