@@ -16,12 +16,12 @@ build:
   before_script:
     - (sudo apt-get update -y && apt-get install -y gzip) || true
   script:
-    - docker build -t release-${PACKAGE_NAME}:${version}-${architecture} ./${version}/${architecture}/
+    - docker build -t release-${PACKAGE_NAME}:${version}-${architecture} ./${version}/${architecture}/ 1>${version}-${architecture}.log 2>&1
     - docker save release-${PACKAGE_NAME}:${version}-${architecture} > release-${version}-${architecture}.tar
     - bash ci/packing_release_tar.sh release-${version}-${architecture}.tar
-    - gzip -9 release-${version}-${architecture}.tar
+    - gzip -9 build/release-${version}-${architecture}.tar
   artifacts:
-    paths: ["build/release-${version}-${architecture}.tar.gz"]
+    paths: ["build/release-${version}-${architecture}.tar.gz", "${version}-${architecture}.log"]
   parallel:
     matrix:
       - version: ["3.12", "3.11", "3.10"]
