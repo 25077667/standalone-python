@@ -34,7 +34,7 @@ jobs: {
             },
             {
                 "name": "Gzip to save space",
-                "run": "apt-get install gzip -y && gzip -9 release-${{ matrix.version }}-${{ matrix.architecture }}.tar",
+                "run": "sudo apt-get install gzip -y && gzip -9 build/release-${{ matrix.version }}-${{ matrix.architecture }}.tar",
             },
             {
                 "name": "Release the tar file to artifacts",
