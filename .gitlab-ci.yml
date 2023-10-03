@@ -30,8 +30,6 @@ build:
 
 generate_release_tag:
   stage: generate_release_tag
-  before_script:
-    - (sudo apt-get update -y && apt-get install -y git) || true
   script:
     - echo release-$(date '+%Y-%m-%d') > .release_tag
     - git config --global user.email "ci@teamt5.org"
@@ -41,6 +39,7 @@ generate_release_tag:
     - git push origin --tags
   artifacts:
     paths: [".release_tag"]
+  tags: [shell]
 
 upload:
   stage: upload
