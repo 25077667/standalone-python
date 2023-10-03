@@ -9,12 +9,13 @@ stages:
   - build
   - generate_release_tag
   - upload
+  - generate_release_note
   - release
 
 build:
   stage: build
   before_script:
-    - (sudo apt-get update -y && apt-get install -y gzip) || true
+    - (sudo apt-get update -y && sudo apt-get install -y gzip) || true
   script:
     - docker build -t release-${PACKAGE_NAME}:${version}-${architecture} ./${version}/${architecture}/ 1>${version}-${architecture}.log 2>&1
     - docker save release-${PACKAGE_NAME}:${version}-${architecture} > release-${version}-${architecture}.tar
@@ -28,9 +29,8 @@ build:
         architecture: ["x86_64", "x86"]
   tags: [shell]
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_TAG != null
       when: never 
-    - when: always
 
 generate_release_tag:
   stage: generate_release_tag
@@ -44,6 +44,9 @@ generate_release_tag:
   artifacts:
     paths: [".release_tag"]
   tags: [shell]
+  rules:
+    - if: $CI_COMMIT_TAG != null
+      when: never 
 
 upload:
   stage: upload
@@ -62,17 +65,19 @@ upload:
   artifacts:
     paths: ["*-result.txt"]
   tags: [shell]
+  rules:
+    - if: $CI_COMMIT_TAG != null
+      when: never 
 
-release:
-  stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  needs: 
+generate_release_note:
+  stage: generate_release_note
+  needs:
     - job: upload
       artifacts: true
     - job: generate_release_tag
       artifacts: true
   before_script:
-    - apt-get update -y && apt-get install jq -y
+    - (sudo apt-get update -y && sudo apt-get install jq -y) || true
   script:
   - |
     export TAG_NAME="$(cat .release_tag)"
@@ -80,15 +85,36 @@ release:
     cat *-result.txt
     for res in $(ls *-result.txt); do
       url=$(cat $res | jq -r '.file.url')
-      echo "url=${url}"
-      filename=$(echo "$url" | sed "s/.*(release-.*\.tar\.gz)/\1/")
+      echo && echo "url=${url}"
+      filename=$(echo "$url" | sed -n "s|.*\(release.*\).tar.gz|\1|p");
       file_id=$(echo "$url" | sed -n 's/.*\/files\/\([0-9]\+\)\/.*/\1/p');
       echo "- [🐍 $filename](/../../package_files/${file_id}/download)" >> generated_release_notes.txt
     done
     echo >> generated_release_notes.txt
+  artifacts:
+    paths: ["generated_release_notes.txt"]
+  tags: [shell]
+  rules:
+    - if: $CI_COMMIT_TAG != null
+      when: never 
+
+release:
+  stage: release
+  needs:
+    - job: generate_release_note
+      artifacts: true
+    - job: generate_release_tag
+      artifacts: true
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+  - |
+    export TAG_NAME="$(cat .release_tag)"
+    echo "TAG_NAME=${TAG_NAME}"
   - |
     release-cli create --name "${PACKAGE_NAME}" \
     --ref "${CI_COMMIT_REF_NAME}" \
     --tag-name "${TAG_NAME}" \
     --description generated_release_notes.txt
-
+  rules:
+    - if: $CI_COMMIT_TAG != null
+      when: never 
