@@ -1,0 +1,79 @@
+variables:
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/"
+  PACKAGE_NAME: "standalone-python"
+  # This is a magic request parameter to get the file attribute of the package, 
+  # See: https://docs.gitlab.com/ee/user/packages/generic_packages/index.html#publish-a-package-file
+  GET_FILE_ATTR_MAGIC: "select=package_file" 
+
+stages:
+  - build
+  - generate_release_tag
+  - upload
+  - release
+
+build:
+  stage: build
+  before_script:
+    - (sudo apt-get update -y && apt-get install -y gzip) || true
+  script:
+    - docker build -t release-${PACKAGE_NAME}:${version}-${architecture} ./${version}/${architecture}/
+    - docker save release-${PACKAGE_NAME}:${version}-${architecture} > release-${version}-${architecture}.tar
+    - bash ci/packing_release_tar.sh release-${version}-${architecture}.tar
+    - gzip -9 release-${version}-${architecture}.tar
+  artifacts:
+    paths: ["build/release-${version}-${architecture}.tar.gz"]
+  parallel:
+    matrix:
+      - version: ["3.12", "3.11", "3.10"]
+        architecture: ["x86_64", "x86"]
+  tags: [shell]
+
+generate_release_tag:
+  stage: generate_release_tag
+  script:
+    - echo release-$(date '+%Y-%m-%d') > .release_tag
+    - git config --global user.email "ci@teamt5.org"
+    - git config --global user.name "CI"
+    - git remote set-url origin "https://gitlab-ci-token:${GIT_TOKEN}@${CI_REPOSITORY_URL#*@}"
+    - git tag $(cat .release_tag)
+    - git push origin --tags
+  artifacts:
+    paths: [".release_tag"]
+
+upload:
+  stage: upload
+  needs: [build]
+  script:
+    - export PACKAGE_VERSION=${{ PACKAGE_VERSION:-$(date '+%Y-%m-%d')}}
+    - |
+      curl \
+      --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+      --upload-file build/release-${version}-${architecture}.tar.gz \
+      "${PACKAGE_REGISTRY_URL}${PACKAGE_NAME}/${PACKAGE_VERSION}/release-${version}-${architecture}.tar.gz?${GET_FILE_ATTR_MAGIC}" >> result.txt
+  parallel:
+    matrix:
+      - version: ["3.12", "3.11", "3.10"]
+        architecture: ["x86_64", "x86"]
+  artifacts:
+    paths: ["result.txt"]
+  tags: [shell]
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs: 
+    - job: upload
+      artifacts: true
+    - job: generate_release_tag
+      artifacts: true
+  script:
+  - |
+    export TAG_NAME="$(cat .release_tag)"
+    echo "TAG_NAME=${TAG_NAME}"
+    cat result.txt
+  - |
+    release-cli create --name "${PACKAGE_NAME}" \
+    --ref "${CI_COMMIT_REF_NAME}" \
+    --tag-name "${TAG_NAME}" \
+    --description result.txt
+
