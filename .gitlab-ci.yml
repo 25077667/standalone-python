@@ -30,6 +30,8 @@ build:
 
 generate_release_tag:
   stage: generate_release_tag
+  before_script:
+    - (sudo apt-get update -y && apt-get install -y git) || true
   script:
     - echo release-$(date '+%Y-%m-%d') > .release_tag
     - git config --global user.email "ci@teamt5.org"
@@ -44,7 +46,7 @@ upload:
   stage: upload
   needs: [build]
   script:
-    - export PACKAGE_VERSION=${{ PACKAGE_VERSION:-$(date '+%Y-%m-%d')}}
+    - export PACKAGE_VERSION=$(date '+%Y-%m-%d')
     - |
       curl \
       --header "JOB-TOKEN: $CI_JOB_TOKEN" \
