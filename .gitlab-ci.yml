@@ -39,7 +39,7 @@ generate_release_tag:
     - git config --global user.email "ci@teamt5.org"
     - git config --global user.name "CI"
     - git remote set-url origin "https://gitlab-ci-token:${GIT_TOKEN}@${CI_REPOSITORY_URL#*@}"
-    - git tag $(cat .release_tag)
+    - (git tag $(cat .release_tag)) || true
     - git push origin --tags
   artifacts:
     paths: [".release_tag"]
