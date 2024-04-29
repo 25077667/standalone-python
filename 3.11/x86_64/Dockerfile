@@ -2,7 +2,7 @@ FROM alpine:3.18.3 as base_builder
 
 ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     LANG=C.UTF-8 \
-    PYTHON_VERSION=3.11.5
+    PYTHON_VERSION=3.11.9
 
 WORKDIR /src
 RUN set -eux && apk add --no-cache ca-certificates tzdata && \
