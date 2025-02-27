@@ -34,9 +34,6 @@ standalone Python is designed to work seamlessly across all Linux platforms.
 - Run the Python script with the standalone Python:
     - `./opt/python/bin/python ./your_script.py`
 
-## Currently Only One Dependency:
-- bash
-
 # License
 Any codes were downloaded from links, follow the license of the original project.
 
