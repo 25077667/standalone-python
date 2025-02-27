@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -20,7 +20,7 @@ bootstraping_libc() {
 
 # Function to set up environment variables
 setup_environment() {
-    export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+    export SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
     export INSTALL_PREFIX="$SCRIPT_DIR/../"
 
     # Find the REAL_PYTHON
